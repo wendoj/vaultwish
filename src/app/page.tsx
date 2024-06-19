@@ -1,9 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { MoveRight, Sparkles } from "lucide-react";
+import { MoveRight, Sparkles, UsersRound } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { steps, features } from "@/constants";
+import { steps, features, reviews } from "@/constants";
 import { cn } from "@/lib/utils";
+import Marquee from "@/components/ui/marquee";
+import ReviewCard from "@/components/home/ReviewCard";
+
+const firstRow = reviews.slice(0, reviews.length / 2);
+const secondRow = reviews.slice(reviews.length / 2);
 
 export default function HomePage() {
   return (
@@ -106,15 +111,15 @@ export default function HomePage() {
             </div>
             <div className="z-10 mb-4 grid w-full lg:grid-cols-4 lg:gap-8">
               {steps.map((step, index) => (
-                <article className="w-full" key={index}>
+                <article className="py-8 lg:py-0 w-full" key={index}>
                   <span className="block flex h-8 w-8 items-center justify-center rounded-full bg-black text-white">
                     {index + 1}
                   </span>
                   <div>
-                    <h3 className="mt-8 text-lg font-medium leading-6 text-black lg:mt-10">
+                    <h3 className="mt-4 lg:mt-8 text-lg font-medium leading-6 text-black lg:mt-10">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-slate-500">
                       {step.description}
                     </p>
                   </div>
@@ -133,7 +138,7 @@ export default function HomePage() {
           <h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
             The problem.
           </h2>
-          <p className="max-w-3xl mt-4 text-balance text-lg text-muted-foreground">
+          <p className="mt-4 max-w-3xl text-balance text-lg text-muted-foreground">
             Most times we receive gifts we don't need or want, and we end up
             throwing them away or giving them to someone else. This is a waste
             of resources and time.
@@ -141,21 +146,21 @@ export default function HomePage() {
           <div className="mt-16 flex flex-col items-center justify-center gap-6 md:flex-row md:items-start">
             <div className="flex w-full flex-col items-center justify-center gap-2 md:w-48">
               <span className="text-4xl">🫣</span>
-              <p className="font-semibold font-heading">
+              <p className="font-heading font-semibold">
                 Receives a gift they don't want
               </p>
             </div>
             <Arrow />
             <div className="flex w-full flex-col items-center justify-center gap-2 md:w-48">
               <span className="text-4xl">🫤</span>
-              <p className="font-semibold font-heading">
+              <p className="font-heading font-semibold">
                 Doesn't find a reason to keep it <u>forever</u>
               </p>
             </div>
             <Arrow />
             <div className="flex w-full flex-col items-center justify-center gap-2 md:w-48">
               <span className="text-4xl">😬</span>
-              <p className="font-semibold font-heading">
+              <p className="font-heading font-semibold">
                 Throws it away or gives it to someone else
               </p>
             </div>
@@ -195,6 +200,35 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <section id="reviews">
+        <div className="mx-auto mt-24 flex max-w-7xl flex-col items-center justify-center px-6 lg:px-8">
+          <Badge variant="accent">
+            <UsersRound size={12} className="inline-block" />
+            Reviews
+          </Badge>
+          <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight md:text-4xl">
+            What others are saying.
+          </h2>
+          <p className="mt-4 text-balance text-lg text-muted-foreground">
+            See what others are saying about VaultWish.
+          </p>
+        </div>
+        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background pt-20 pb-36">
+          <Marquee pauseOnHover className="[--duration:20s]">
+            {firstRow.map((review) => (
+              <ReviewCard key={review.username} {...review} />
+            ))}
+          </Marquee>
+          <Marquee reverse pauseOnHover className="[--duration:20s]">
+            {secondRow.map((review) => (
+              <ReviewCard key={review.username} {...review} />
+            ))}
+          </Marquee>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
+        </div>
+      </section>
     </main>
   );
 }
@@ -203,7 +237,7 @@ function Arrow({ className }: { className?: string }) {
   return (
     <svg
       className={cn(
-        "w-12 shrink-0 fill-muted-foreground opacity-70 md:-scale-x-100 md:-rotate-90",
+        "w-12 shrink-0 fill-muted-foreground opacity-70 md:-rotate-90 md:-scale-x-100",
         className,
       )}
       viewBox="0 0 138 138"
