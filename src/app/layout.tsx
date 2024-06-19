@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { Bricolage_Grotesque } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -28,10 +29,9 @@ export default function RootLayout({
       className={cn(GeistSans.className, bricolageGrotesque.variable)}
     >
       <body>
-        <header>
-          <Navbar />
-        </header>
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
