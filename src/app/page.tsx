@@ -111,12 +111,12 @@ export default function HomePage() {
             </div>
             <div className="z-10 mb-4 grid w-full lg:grid-cols-4 lg:gap-8">
               {steps.map((step, index) => (
-                <article className="py-8 lg:py-0 w-full" key={index}>
+                <article className="w-full py-8 lg:py-0" key={index}>
                   <span className="block flex h-8 w-8 items-center justify-center rounded-full bg-black text-white">
                     {index + 1}
                   </span>
                   <div>
-                    <h3 className="mt-4 lg:mt-8 text-lg font-medium leading-6 text-black lg:mt-10">
+                    <h3 className="mt-4 text-lg font-medium leading-6 text-black lg:mt-10 lg:mt-8">
                       {step.title}
                     </h3>
                     <p className="mt-2 text-sm text-slate-500">
@@ -207,14 +207,14 @@ export default function HomePage() {
             <UsersRound size={12} className="inline-block" />
             Reviews
           </Badge>
-          <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight md:text-4xl">
+          <h2 className="font-heading mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
             What others are saying.
           </h2>
           <p className="mt-4 text-balance text-lg text-muted-foreground">
             See what others are saying about VaultWish.
           </p>
         </div>
-        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background pt-20 pb-36">
+        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background pb-36 pt-20">
           <Marquee pauseOnHover className="[--duration:20s]">
             {firstRow.map((review) => (
               <ReviewCard key={review.username} {...review} />

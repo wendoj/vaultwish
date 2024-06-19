@@ -5,11 +5,13 @@ export const steps = [
   },
   {
     title: "Step 2",
-    description: "Create a wishlist by adding items you want to receive as gifts (or share Amazon wishlists)",
+    description:
+      "Create a wishlist by adding items you want to receive as gifts (or share Amazon wishlists)",
   },
   {
     title: "Step 3",
-    description: "Share your wishlist with friends and family or wait for people to find it on their own",
+    description:
+      "Share your wishlist with friends and family or wait for people to find it on their own",
   },
   {
     title: "Step 4",

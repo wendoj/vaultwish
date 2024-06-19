@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import styles from "@/styles/components/navbar.module.css";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 type IconProps = {
   ["data-hide"]: boolean;
@@ -109,7 +110,9 @@ export default function Navbar() {
             </ul>
 
             <div className="hidden w-full grow items-center justify-end gap-1.5 sm:flex">
-              <Button className="w-auto px-6">Sign in</Button>
+              <Button className="w-auto px-6" onClick={() => signIn()}>
+                Sign in
+              </Button>
             </div>
           </div>
           <hr className="m-0 mt-6 h-px w-full border-none bg-gradient-to-r from-slate-200/0 via-slate-200/30 to-slate-200/0" />
