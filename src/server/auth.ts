@@ -6,7 +6,7 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import DiscordProvider from "next-auth/providers/discord";
-
+import EmailProvider from "next-auth/providers/email";
 import { env } from "@/env";
 import { db } from "@/server/db";
 import {
@@ -15,6 +15,9 @@ import {
   users,
   verificationTokens,
 } from "@/server/db/schema/auth";
+import { Resend } from "resend";
+import Email from "../../packages/transactional/emails/verify-email";
+import { eq } from "drizzle-orm";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -43,17 +46,44 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: "/sign-in",
   },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async session({ token, session }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
+      }
+
+      return session;
+    },
+    async jwt({ token, user }) {
+      const dbUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, user?.email))
+        .single();
+
+      if (!dbUser) {
+        if (user) {
+          token.id = user?.id;
+        }
+        return token;
+      }
+
+      return {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        picture: dbUser.image,
+      };
+    },
   },
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -65,6 +95,24 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
+    }),
+    EmailProvider({
+      from: "noreply@example.com", // change this to your email address
+      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+        const resend = new Resend(env.RESEND_API_KEY);
+
+        try {
+          await resend.emails.send({
+            from: provider.from,
+            to: email,
+            subject: "Verify your email address",
+            react: Email({ link: url }),
+            text: `Welcome to VaultWish, please verify your email address to get started by clicking the button below. If you did not sign up for an account, you can safely ignore this email.`,
+          });
+        } catch (error) {
+          console.log({ error });
+        }
+      },
     }),
     /**
      * ...add more providers here.
