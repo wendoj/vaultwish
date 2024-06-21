@@ -5,6 +5,8 @@ import { Bricolage_Grotesque } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { ToastProvider } from "@/components/ui/toast";
+import Provider from "@/components/session-provider";
 
 const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -24,15 +26,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={cn(GeistSans.className, bricolageGrotesque.variable)}
-    >
-      <body>
-        <Navbar />
-        {children}
-        <Footer />
-      </body>
-    </html>
+    <Provider>
+      <ToastProvider>
+        <html
+          lang="en"
+          className={cn(GeistSans.className, bricolageGrotesque.variable)}
+        >
+          <body>
+            <Navbar />
+            {children}
+            <Footer />
+          </body>
+        </html>
+      </ToastProvider>
+    </Provider>
   );
 }

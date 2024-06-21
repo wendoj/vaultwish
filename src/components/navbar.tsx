@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import styles from "@/styles/components/navbar.module.css";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession, signOut } from "next-auth/react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut } from "lucide-react";
 
 type IconProps = {
   ["data-hide"]: boolean;
@@ -60,6 +63,8 @@ function NavItem(props: NavProps) {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+  const loading = session === undefined;
 
   return (
     <header className="z-50 mx-auto max-w-7xl">
@@ -110,9 +115,37 @@ export default function Navbar() {
             </ul>
 
             <div className="hidden w-full grow items-center justify-end gap-1.5 sm:flex">
-              <Button className="w-auto px-6" onClick={() => signIn()}>
-                Sign in
-              </Button>
+              {loading ? (
+                <LoadingSpinner />
+              ) : session?.user ? (
+                <div className="flex flex-row items-center space-x-3">
+                  <Avatar className="rounded-md border border-border bg-white">
+                    <AvatarImage
+                      src={session?.user.image ?? "/assets/user.webp"}
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <span className="flex flex-col items-start">
+                    <Link href="/dashboard">{session.user.name}</Link>
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      signOut({
+                        redirect: true,
+                        callbackUrl: `${window.location.origin}/sign-in`,
+                      })
+                    }
+                  >
+                    <LogOut size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <Button className="w-auto px-6" onClick={() => signIn()}>
+                  Sign in
+                </Button>
+              )}
             </div>
           </div>
           <hr className="m-0 mt-6 h-px w-full border-none bg-gradient-to-r from-slate-200/0 via-slate-200/30 to-slate-200/0" />

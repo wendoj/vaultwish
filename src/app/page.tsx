@@ -24,7 +24,7 @@ export default function HomePage() {
 
       <section
         id="hero"
-        className="mx-auto mt-48 flex flex max-w-7xl flex-col items-center justify-center rounded-md border border-primary/10 bg-accent/5 px-6 py-40 text-center shadow backdrop-blur lg:px-8"
+        className="mx-auto mt-32 flex flex max-w-7xl flex-col items-center justify-center rounded-md border border-primary/10 bg-accent/5 px-6 py-40 text-center shadow backdrop-blur lg:px-8"
       >
         <span className="mx-auto max-w-3xl">
           <Badge variant="accent">
@@ -41,7 +41,7 @@ export default function HomePage() {
           </p>
         </span>
         <span className="mt-8 flex flex-row space-x-2">
-          <Link className={buttonVariants({ size: "lg" })} href="/register">
+          <Link className={buttonVariants({ size: "lg" })} href="/sign-in">
             Get started <MoveRight size={12} className="ml-2 inline-block" />
           </Link>
           <Button variant="outline" size="lg">

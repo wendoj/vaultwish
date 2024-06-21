@@ -10,5 +10,10 @@ import { wishlists } from "@/server/db/schema/main";
 import { desc } from "drizzle-orm";
 
 export async function fetchWishlists() {
-  return await db.select().from(wishlists).orderBy(desc(wishlists.createdAt));
+  const wishlistBody = await db
+    .select()
+    .from(wishlists)
+    .orderBy(desc(wishlists.createdAt));
+  console.log(wishlistBody);
+  return wishlistBody;
 }
