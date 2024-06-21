@@ -16,7 +16,8 @@ import {
   verificationTokens,
 } from "@/server/db/schema/auth";
 import { Resend } from "resend";
-import Email from "../../packages/transactional/emails/verify-email";
+import VerificationEmail from "../../packages/transactional/emails/verify-email";
+import SignInEmail from "../../packages/transactional/emails/sign-in";
 import { eq } from "drizzle-orm";
 
 /**
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/sign-in",
   },
   callbacks: {
-    async session({ token, session }) {
+    async session({ token, session }: { token: any; session: any }) {
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
@@ -64,11 +65,14 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user }) {
-      const dbUser = await db
+      if (!token.email) {
+        return token;
+      }
+
+      const dbUser = (await db
         .select()
         .from(users)
-        .where(eq(users.email, user?.email))
-        .single();
+        .where(eq(users.email, token.email))) as any;
 
       if (!dbUser) {
         if (user) {
@@ -97,18 +101,40 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
     EmailProvider({
-      from: "noreply@example.com", // change this to your email address
+      from: env.SMTP_FROM,
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
         const resend = new Resend(env.RESEND_API_KEY);
+        const user = await db
+          .select({
+            emailVerified: users.emailVerified,
+          })
+          .from(users)
+          .where(eq(users.email, email));
+
+        const emailVerified = user[0]?.emailVerified ?? false;
+
+        console.log({ emailVerified });
 
         try {
-          await resend.emails.send({
-            from: provider.from,
-            to: email,
-            subject: "Verify your email address",
-            react: Email({ link: url }),
-            text: `Welcome to VaultWish, please verify your email address to get started by clicking the button below. If you did not sign up for an account, you can safely ignore this email.`,
-          });
+          if (emailVerified) {
+            await resend.emails.send({
+              from: provider.from,
+              to: email,
+              subject: "Sign in to VaultWish",
+              react: SignInEmail({ link: url }),
+              text: `Welcome back to VaultWish, please sign in to continue by clicking the button below. If you did not request this email, you can safely ignore it and your account will not be affected.`,
+            });
+          } else {
+            await resend.emails.send({
+              from: provider.from,
+              to: email,
+              subject: "Verify your email address",
+              react: VerificationEmail({ link: url }),
+              text: `Welcome to VaultWish, please verify your email address to get started by clicking the button below. If you did not sign up for an account, you can safely ignore this email.`,
+            });
+
+            console.log({ email, url });
+          }
         } catch (error) {
           console.log({ error });
         }
