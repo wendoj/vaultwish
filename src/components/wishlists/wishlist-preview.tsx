@@ -13,5 +13,5 @@ type WishlistPreviewProps = {
 };
 
 export default function WishlistPreview({ wishlist }: WishlistPreviewProps) {
-  return <></>;
+  return <div className="h-full w-full">{wishlist.name}</div>;
 }

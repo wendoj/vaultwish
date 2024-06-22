@@ -10,7 +10,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import { userAuthSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -19,6 +19,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 type FormData = z.infer<typeof userAuthSchema>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,

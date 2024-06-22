@@ -118,16 +118,20 @@ export default function Navbar() {
               {loading ? (
                 <LoadingSpinner />
               ) : session?.user ? (
-                <div className="flex flex-row items-center space-x-3">
-                  <Avatar className="rounded-md border border-border bg-white">
-                    <AvatarImage
-                      src={session?.user.image ?? "/assets/user.webp"}
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <span className="flex flex-col items-start">
-                    <Link href="/dashboard">{session.user.name}</Link>
-                  </span>
+                <div className="flex flex-row items-center space-x-1">
+                  <div className="flex flex-row items-center space-x-2 rounded-md border pr-3">
+                    <Avatar className="rounded-none">
+                      <AvatarImage
+                        src={session?.user.image ?? "/assets/user.webp"}
+                      />
+                      <AvatarFallback className="rounded-l-md rounded-r-none">
+                        {session?.user.email[0]!.toUpperCase() ?? "VW"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Link href="/dashboard" className="text-sm">
+                      {session.user.email?.split("@")[0]}
+                    </Link>
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"

@@ -47,47 +47,17 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-  },
   pages: {
     signIn: "/sign-in",
   },
   callbacks: {
-    async session({ token, session }: { token: any; session: any }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-      }
-
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (!token.email) {
-        return token;
-      }
-
-      const dbUser = (await db
-        .select()
-        .from(users)
-        .where(eq(users.email, token.email))) as any;
-
-      if (!dbUser) {
-        if (user) {
-          token.id = user?.id;
-        }
-        return token;
-      }
-
-      return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        picture: dbUser.image,
-      };
-    },
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
   },
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -102,24 +72,21 @@ export const authOptions: NextAuthOptions = {
     }),
     EmailProvider({
       from: env.SMTP_FROM,
-      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+      sendVerificationRequest: async ({ identifier, url, provider }) => {
         const resend = new Resend(env.RESEND_API_KEY);
         const user = await db
           .select({
             emailVerified: users.emailVerified,
           })
           .from(users)
-          .where(eq(users.email, email));
-
+          .where(eq(users.email, identifier));
         const emailVerified = user[0]?.emailVerified ?? false;
-
-        console.log({ emailVerified });
 
         try {
           if (emailVerified) {
             await resend.emails.send({
               from: provider.from,
-              to: email,
+              to: identifier,
               subject: "Sign in to VaultWish",
               react: SignInEmail({ link: url }),
               text: `Welcome back to VaultWish, please sign in to continue by clicking the button below. If you did not request this email, you can safely ignore it and your account will not be affected.`,
@@ -127,13 +94,11 @@ export const authOptions: NextAuthOptions = {
           } else {
             await resend.emails.send({
               from: provider.from,
-              to: email,
+              to: identifier,
               subject: "Verify your email address",
               react: VerificationEmail({ link: url }),
               text: `Welcome to VaultWish, please verify your email address to get started by clicking the button below. If you did not sign up for an account, you can safely ignore this email.`,
             });
-
-            console.log({ email, url });
           }
         } catch (error) {
           console.log({ error });
