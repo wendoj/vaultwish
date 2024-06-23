@@ -1,13 +1,28 @@
 import { getServerAuthSession } from "@/server/auth";
 import { z } from "zod";
+import { wishlistSchema } from "@/lib/validations/wishlist";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import { Toaster } from "@/components/ui/sonner";
+import { WishlistForm } from "@/components/wishlists/create-wishlist-form";
+import { fetchUserWishlists } from "@/actions/wishlists";
+import GaugeCircle from "@/components/ui/gauge-circle";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 
 export default async function Dashboard() {
   const session = await getServerAuthSession();
 
-  console.log(session);
+  if (!session) {
+    return { redirect: { destination: "/login", permanent: false } };
+  }
+
+  const userWishlists = await fetchUserWishlists(session.user.id);
+  console.log(userWishlists);
 
   return (
-    <main className="container mt-20 flex h-full flex-col py-20">
+    <main className="mx-auto mt-20 flex h-full min-h-screen max-w-7xl flex-col px-6 py-20 lg:px-8">
+      <Toaster />
+
       <h1 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
         Dashboard
       </h1>
@@ -15,17 +30,46 @@ export default async function Dashboard() {
         Welcome back, {session?.user.email}
       </p>
 
-      {/* Create a new wishlist */}
-      <section className="mt-10">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          Create a new wishlist
-        </h2>
-        <form className="mt-6 flex flex-col space-y-4">
-          <input type="text" placeholder="Wishlist name" className="input" />
-          <textarea placeholder="Wishlist description" className="input" />
-          <button className="button">Create Wishlist</button>
-        </form>
-      </section>
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        {/* User's wishlists */}
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Your wishlists
+          </h2>
+          {userWishlists.length > 0 ? (
+            <div className="grid gap-4">
+              {userWishlists.map((wishlist) => (
+                <div
+                  key={wishlist.id}
+                  className="flex items-center justify-between"
+                >
+                  <div>
+                    <h3 className="text-xl font-semibold">{wishlist.name}</h3>
+                    <p className="text-muted-foreground">
+                      {wishlist.description}
+                    </p>
+                  </div>
+                  <Button variant="destructive">
+                    Delete <Trash size={16} className="ml-1 inline-block" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">
+              You haven't created any wishlists yet.
+            </p>
+          )}
+        </div>
+
+        {/* Create a new wishlist */}
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Create a new wishlist
+          </h2>
+          <WishlistForm />
+        </div>
+      </div>
     </main>
   );
 }

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { UserAuthForm } from "@/components/ui/auth/user-auth-form";
 
 export default function SignUpPage() {

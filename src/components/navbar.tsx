@@ -119,7 +119,7 @@ export default function Navbar() {
                 <LoadingSpinner />
               ) : session?.user ? (
                 <div className="flex flex-row items-center space-x-1">
-                  <div className="flex flex-row items-center space-x-2 rounded-md border pr-3">
+                  <div className="flex flex-row items-center space-x-2 rounded-md border bg-white pr-3">
                     <Avatar className="rounded-none">
                       <AvatarImage
                         src={session?.user.image ?? "/assets/user.webp"}

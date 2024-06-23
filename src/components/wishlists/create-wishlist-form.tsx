@@ -13,6 +13,13 @@ import { signIn } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 
 interface WishlistFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -20,51 +27,79 @@ type FormData = z.infer<typeof wishlistSchema>;
 
 export function WishlistForm({ className, ...props }: WishlistFormProps) {
   const { toast } = useToast();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+  const form = useForm<FormData>({
     resolver: zodResolver(wishlistSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      wishlistLink: "",
+      targetAmount: 0,
+    },
   });
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  async function onSubmit(data: FormData) {
-    setIsLoading(true);
+  function onSubmit(values: z.infer<typeof wishlistSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
   }
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
+    <Form {...props}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4"
       >
-        <div className="grid gap-1">
-          <Label htmlFor="name">Wishlist name</Label>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Wishlist name"
-            {...register("name")}
-          />
-          {errors.name && (
-            <span className="text-sm text-red-500">{errors.name.message}</span>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="name">Wishlist name</FormLabel>
+              <FormControl>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Wishlist name"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
           )}
-        </div>
-        <div className="grid gap-1">
-          <Label htmlFor="description">Wishlist description</Label>
-          <Input
-            id="description"
-            type="text"
-            placeholder="Wishlist description"
-            {...register("description")}
-          />
-          {errors.description && (
-            <span className="text-sm text-red-500">
-              {errors.description.message}
-            </span>
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="description">Wishlist description</FormLabel>
+              <FormControl>
+                <Input
+                  id="description"
+                  type="text"
+                  placeholder="Enter a description for your wishlist"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
           )}
-        </div>
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="wishlistLink"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Wishlist link</FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="Amazon wishlist link"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        ></FormField>
 
         <button
           type="submit"
@@ -78,6 +113,6 @@ export function WishlistForm({ className, ...props }: WishlistFormProps) {
           {isLoading ? <LoadingSpinner /> : "Create Wishlist"}
         </button>
       </form>
-    </div>
+    </Form>
   );
 }
